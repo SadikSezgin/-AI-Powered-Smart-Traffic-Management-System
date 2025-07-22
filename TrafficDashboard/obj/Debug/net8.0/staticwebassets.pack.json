@@ -1,0 +1,41 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\Sadik\\Desktop\\bitirme\\Project\\TrafficDashboard\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "C:\\Users\\Sadik\\Desktop\\bitirme\\Project\\TrafficDashboard\\wwwroot\\images\\congestion_ratio.png",
+      "PackagePath": "staticwebassets\\images\\congestion_ratio.png"
+    },
+    {
+      "Id": "C:\\Users\\Sadik\\Desktop\\bitirme\\Project\\TrafficDashboard\\wwwroot\\images\\may_year.png",
+      "PackagePath": "staticwebassets\\images\\may_year.png"
+    },
+    {
+      "Id": "C:\\Users\\Sadik\\Desktop\\bitirme\\Project\\TrafficDashboard\\wwwroot\\images\\speed_comparison.png",
+      "PackagePath": "staticwebassets\\images\\speed_comparison.png"
+    },
+    {
+      "Id": "C:\\Users\\Sadik\\Desktop\\bitirme\\Project\\TrafficDashboard\\wwwroot\\js\\site.js",
+      "PackagePath": "staticwebassets\\js\\site.js"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.TrafficDashboard.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.TrafficDashboard.props",
+      "PackagePath": "build\\TrafficDashboard.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.TrafficDashboard.props",
+      "PackagePath": "buildMultiTargeting\\TrafficDashboard.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.TrafficDashboard.props",
+      "PackagePath": "buildTransitive\\TrafficDashboard.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

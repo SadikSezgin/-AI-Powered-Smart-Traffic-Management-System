@@ -1,0 +1,217 @@
+@model TrafficDashboard.Models.PredictionInputModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_Layout";
+}
+
+<h1>Traffic Management Dashboard</h1>
+
+<h2 style="margin-top: 40px;"> Make a Prediction </h2>
+<form asp-action="Index" asp-controller="Dashboard" method="post" style="margin-top: 20px; margin-bottom: 40px;">
+    @Html.AntiForgeryToken()
+
+    <div>
+        <label>Hour (0-23):</label><br />
+        <input type="number" name="Hour" value="@Model?.Hour" required /><br /><br />
+    </div>
+
+    <div>
+        <label>Day of Week (0 = Sunday, 6 = Saturday):</label><br />
+        <input type="number" name="DayOfWeek" value="@Model?.DayOfWeek" required /><br /><br />
+    </div>
+
+    <div>
+        <label>Latitude:</label><br />
+        <input type="number" step="any" name="Latitude" value="@Model?.Latitude" required /><br /><br />
+    </div>
+
+    <div>
+        <label>Longitude:</label><br />
+        <input type="number" step="any" name="Longitude" value="@Model?.Longitude" required /><br /><br />
+    </div>
+
+    <div>
+        <label>Number of Vehicles:</label><br />
+        <input type="number" name="NumberOfVehicles" value="@Model?.NumberOfVehicles" required /><br /><br />
+    </div>
+
+    <button type="submit" style="padding: 10px 20px; font-size: 1rem;">Predict</button>
+</form>
+
+<!-- Manuel Prediction Result -->
+<div style="margin-top: 40px;">
+    <h2>Predicted Average Speed:</h2>
+    <p style="font-size: 1rem; color: green;">
+        @(ViewBag.PredictedSpeed != null ? $"{ViewBag.PredictedSpeed} km/h" : "No prediction yet")
+    </p>
+</div>
+
+<!-- Live Camera Feed Stream -->
+<h2 style="margin-top: 40px;">Live Camera Predictions and Suggestions </h2>
+
+<h3 style="margin-top: 40px;">Live Camera Feeds with Analytics</h3>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+    @for (int cam = 1; cam <= 4; cam++)
+    {
+        var speed = ViewBag.CameraSpeeds != null && ViewBag.CameraSpeeds.ContainsKey(cam)
+            ? (double)ViewBag.CameraSpeeds[cam]
+            : 0.0;
+
+        var suggestion = ViewBag.CameraSuggestions != null && ViewBag.CameraSuggestions.ContainsKey(cam)
+            ? ViewBag.CameraSuggestions[cam]
+            : "Awaiting data...";
+
+        var suggestionColor = speed < 20 ? "red" : (speed < 40 ? "orange" : "green");
+
+        <div style="border: 2px solid #ccc; padding: 15px; border-radius: 10px;">
+            <h4 style="margin-bottom: 10px;">Camera @cam</h4>
+            <img src="http://localhost:500@(cam + 1)/video_feed"
+                 style="width: 100%; height: 300px; object-fit: cover; border: 1px solid #444;" />
+
+            <div style="margin-top: 10px;">
+                <p><strong>Predicted Speed:</strong> <span id="cam@(cam)-speed" style="color: blue;">@speed.ToString("0.00") km/h</span>
+                <p><strong>Signal Suggestion:</strong> <span id="cam@(cam)-suggestion" style="color: @suggestionColor;">@suggestion</span>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="container mt-5">
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Weekly vs. Overall Average Speed</h5>
+        </div>
+        <div class="card-body text-center">
+            <img src="/images/speed_comparison.png" class="img-fluid" alt="Speed Comparsion Graphic" />
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Congestion Ratio Visualization</h5>
+        </div>
+        <div class="card-body text-center">
+            <img src="/images/congestion_ratio.png" class="img-fluid" alt="Congestion Ratio Graphic" />
+        </div>
+    </div>
+
+    <div class="card mb-4"></div>
+        <div class="card-header">
+            <h5>Monthly Trend Graph</h5>
+        </div>
+        <div class="card-body text-center">
+            <img src="/images/may_year.png" class="img-fluid" alt="Trend Graphic" />
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const ctx = document.getElementById('speedChart').getContext('2d');
+        const speedChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM'],
+                datasets: [{
+                    label: 'Average Speed (km/h)',
+                    data: [45, 50, 55, 52, 49, 53],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 120
+                    }
+                }
+            }
+        });
+
+        async function fetchLiveTrafficData() {
+            try {
+                const response = await fetch('/Dashboard/GetLatestTrafficData');
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('live-signal').innerText = data.latestLiveSignalSuggestion;
+                    document.getElementById('live-speed').innerText = data.latestPredictedSpeed.toFixed(2) + ' km/h';
+                    console.log("Fetched live data:", data);
+                } else {
+                    console.error('Failed to fetch live traffic data');
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        }
+
+        setInterval(fetchLiveTrafficData, 1000);
+        fetchLiveTrafficData();
+
+        function refreshCameraFeed() {
+            const img = document.getElementById('camera-feed');
+            const timestamp = new Date().getTime();
+            img.src = '/frames/current_frame.jpg?t=' + timestamp;
+        }
+
+        setInterval(refreshCameraFeed, 50);
+    </script>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const preloadPorts = ['5002', '5003', '5004', '5005'];
+
+            preloadPorts.forEach(port => {
+                const img = document.createElement('img');
+                img.src = `http://localhost:${port}/video_feed`;
+                img.style.display = 'none';
+                img.loading = 'eager';
+                document.body.appendChild(img);
+            });
+        });
+    </script>
+
+    <script>
+        async function fetchCameraData() {
+            try {
+                const response = await fetch('/Dashboard/GetLatestTrafficData');
+                if (!response.ok) throw new Error("Failed to fetch");
+
+                const data = await response.json();
+
+                for (let cam = 1; cam <= 4; cam++) {
+                    const speedSpan = document.getElementById(`cam${cam}-speed`);
+                    const suggestionSpan = document.getElementById(`cam${cam}-suggestion`);
+
+                    if (speedSpan && suggestionSpan && data.cameraSpeeds && data.cameraSuggestions) {
+                        const speed = data.cameraSpeeds[cam] || 0.0;
+                        const suggestion = data.cameraSuggestions[cam] || "Awaiting data...";
+
+                        speedSpan.innerText = speed.toFixed(2) + " km/h";
+                        suggestionSpan.innerText = suggestion;
+
+                        if (suggestion.includes("15")) {
+                            suggestionSpan.style.color = "red";
+                        } else if (suggestion.includes("5")) {
+                            suggestionSpan.style.color = "orange";
+                        } else {
+                            suggestionSpan.style.color = "green";
+                        }
+
+                    }
+                }
+
+            } catch (error) {
+                console.error("Error fetching camera data:", error);
+            }
+        }
+
+        setInterval(fetchCameraData, 200);
+        fetchCameraData();
+    </script>
+}
+
