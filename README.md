@@ -40,9 +40,7 @@ Dataset & Records
 Due to file size limits, the records/ folder (containing traffic data, logs, or video files) is not included in this repository.
 
 You can download the records/ directory separately via:
-
-Google Drive Download: https://drive.google.com/your-shared-link
-(Replace this link with the actual one after uploading)
+You can find the related links in their own folder.
 
 After downloading:
 - Place the contents into a folder called records/ in the root directory.
